@@ -42,6 +42,7 @@ class Currency {
   final double amount;
   final double changePercent;
   final double conversion;
+  bool onWatch;
 
   Currency({
     this.currency,
@@ -49,6 +50,6 @@ class Currency {
     this.amount,
     this.changePercent,
     this.conversion
-  });
+  }): onWatch = true;
 
 }

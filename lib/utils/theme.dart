@@ -8,8 +8,14 @@ class AppTheme {
   static const Color greyColor3 = const Color(0xFF5A5A5A);
   static const Color appGreen = const Color(0xFF1FAC5D);
   static const Color appRed = const Color(0xFFD95730);
+  static const Color appOrange = const Color(0xFFF1683E);
+  static const Color searchBg = const Color(0xFFF2F3F3);
+  static const Color greyColor4 = const Color(0xFF6D7575);
+
+  static const IconThemeData iconThemeData = const IconThemeData(color: AppTheme.greyColor4);
 
   static const double miniSize = 14.0;
+  static const double normalSize = 18.0;
   static const double largeSize = 28.0;
 
   static const TextStyle currencySelected = const TextStyle(
@@ -78,6 +84,22 @@ class AppTheme {
     fontSize: AppTheme.miniSize,
     fontWeight: FontWeight.w300,
     letterSpacing: 1.5
+  );
+
+  static const TextStyle currencySearchLabel = const TextStyle(
+    color: AppTheme.greyColor4,
+    fontWeight: FontWeight.w600
+  );
+
+  static const TextStyle currencyListCode = const TextStyle(
+    color: AppTheme.greyColor4,
+    fontSize: AppTheme.normalSize
+  );
+
+  static const TextStyle currencyListTitle = const TextStyle(
+    color: Colors.black,
+    fontWeight: FontWeight.w500,
+    fontSize: AppTheme.normalSize
   );
 
 }
