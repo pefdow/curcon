@@ -4,14 +4,22 @@ import 'package:meta/meta.dart';
 import '../model/currency.dart';
 import '../utils/theme.dart';
 
-class CurrencyRow extends StatelessWidget {
+class CurrencyRow extends StatefulWidget {
 
   final Currency currency;
+  final String baseCurrency;
 
   CurrencyRow({
-    @required this.currency
+    @required this.currency,
+    @required this.baseCurrency,
   });
 
+  @override
+  _CurrencyRowState createState() => new _CurrencyRowState();
+
+}
+
+class _CurrencyRowState extends State<CurrencyRow> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -24,12 +32,12 @@ class CurrencyRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Text(
-                  currency.code,
-                  style: currency.changePercent > 0 ? AppTheme.currencyCodePositive : currency.changePercent < 0 ? AppTheme.currencyCodeNegative : AppTheme.currencyCodeNeutral,
+                  widget.currency.code,
+                  style: widget.currency.changePercent > 0 ? AppTheme.currencyCodePositive : widget.currency.changePercent < 0 ? AppTheme.currencyCodeNegative : AppTheme.currencyCodeNeutral,
                 ),
                 new Text(
-                  '${currency.changePercent}%',
-                  style: currency.changePercent > 0 ? AppTheme.currencyChangePositive : currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
+                  '${widget.currency.changePercent}%',
+                  style: widget.currency.changePercent > 0 ? AppTheme.currencyChangePositive : widget.currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
                 ),
               ],
             ),
@@ -40,13 +48,13 @@ class CurrencyRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Text(
-                  '${currency.amount}',
+                  '${widget.currency.amount}',
                   style: AppTheme.currencyAmount,
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: new Text(
-                    '${currency.conversion} ${currency.currency} = 1 BTC',
+                    '${widget.currency.conversion} ${widget.currency.currency} = 1 ${widget.baseCurrency}',
                     style: AppTheme.currencyConversion,
                   ),
                 ),

@@ -9,6 +9,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+
+  List<Currency> currentCurrencies = [];
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
