@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
 
   void _getWatchedCurrencies() {
     setState(() {
-      currentCurrencies = _currencyService.getCurrentCurrency();
+      currentCurrencies = _currencyService.getCurrentCurrencies();
     });
   }
 

@@ -11,7 +11,13 @@ class Currency {
     this.code,
     this.amount,
     this.changePercent,
-    this.conversion
-  }): onWatch = true;
+    this.conversion,
+    this.onWatch
+  });
+
+  @override
+  String toString() {
+    return "${this.code} - ${this.currency}";
+  }
 
 }
