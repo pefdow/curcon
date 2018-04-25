@@ -2,10 +2,14 @@ import '../model/currency.dart';
 
 class CurrencyService {
 
-  CurrencyService();
+  CurrencyService._();
+
+  static CurrencyService instance = new CurrencyService._();
+
+  List<Currency> currencies = [];
 
   List<Currency> getCurrentCurrency() {
-    return [
+    currencies = [
       new Currency(
         currency: "Bitcoin",
         code: "BTC",
@@ -42,6 +46,8 @@ class CurrencyService {
         conversion: 2139.37
       ),
     ];
+
+    return currencies;
 
   }
 

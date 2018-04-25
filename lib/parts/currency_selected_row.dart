@@ -2,15 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../model/currency.dart';
+import '../services/global_state.dart';
 import '../utils/theme.dart';
 
-class CurrencySelectedRow extends StatelessWidget {
+class CurrencySelectedRow extends StatefulWidget {
 
   final Currency currency;
 
   CurrencySelectedRow({
     @required this.currency
   });
+
+  @override
+  _CurrencySelectedRowState createState() => new _CurrencySelectedRowState();
+
+}
+
+class _CurrencySelectedRowState extends State<CurrencySelectedRow> {
+
+  final TextEditingController _inputAmountCtrlr = new TextEditingController();
+
+  GlobalState _globalState = GlobalState.instance;
+  
+  @override
+  void initState() {
+    super.initState();
+    _inputAmountCtrlr.text = '${widget.currency.amount}';
+    _inputAmountCtrlr.addListener(_updateCurrentAmount);
+  }
+
+  void _updateCurrentAmount(){
+    double amount = double.parse(_inputAmountCtrlr.text, (error) => 0.0);
+    //print('Updating... \n$amount');
+    widget.currency.amount = amount;
+    _globalState.set('currentAmount', amount);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _inputAmountCtrlr.removeListener(_updateCurrentAmount);
+    _inputAmountCtrlr.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +68,7 @@ class CurrencySelectedRow extends StatelessWidget {
                       border: new Border.all(color: AppTheme.greyColor2)
                     ),
                     child: new Text(
-                      currency.code,
+                      widget.currency.code,
                       style: AppTheme.currencySelected,
                     ),
                   ),
@@ -50,8 +83,9 @@ class CurrencySelectedRow extends StatelessWidget {
                   new Container(
                     constraints: BoxConstraints.loose(new Size(MediaQuery.of(context).size.width - 110.0, 50.0)),
                     child: new TextFormField(
+                      controller: _inputAmountCtrlr,
                       keyboardType: TextInputType.number,
-                      initialValue: '${currency.amount}',
+                      //initialValue: '${widget.currency.amount}',
                       style: AppTheme.currencySelected,
                       decoration: new InputDecoration(
                         border: new UnderlineInputBorder(
@@ -65,7 +99,7 @@ class CurrencySelectedRow extends StatelessWidget {
                   new Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: new Text(
-                      '${currency.currency}',
+                      '${widget.currency.currency}',
                       style: AppTheme.currencyConversionSelected,
                     ),
                   ),
@@ -80,4 +114,5 @@ class CurrencySelectedRow extends StatelessWidget {
       ),
     );
   }
+
 }
