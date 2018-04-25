@@ -109,11 +109,12 @@ class _HomePageState extends State<HomePage> {
           if (data.containsKey(item.code)) {
             setState(() {
               item.conversion = data[item.code];
-              item.amount = double.parse( (_currentAmount * data[item.code]).toStringAsFixed(6) );      
+              item.amount = double.parse( (_currentAmount * data[item.code]).toStringAsFixed(6) ); 
+              _lastUpdated = new DateTime.now();
+              time = timeAgo(_lastUpdated);
             });
           }
         });
-        _lastUpdated = new DateTime.now();
       } else {
         //Todo: Alert error
         _showErrorToast();

@@ -11,7 +11,7 @@ class ExchangeService {
   Future<dynamic> rates(String base, String quotes) async {
     //print('Base: '+ base + "\nQuotes: " + quotes);
     var client = new Client();
-    var response = await client.get("https://min-api.cryptocompare.com/data/price?fsym=${base}&tsyms=${quotes}")
+    var response = await client.get("https://min-api.cryptocompare.com/data/price?fsym=$base&tsyms=$quotes")
                             .whenComplete(client.close)
                             .catchError((){
                               return null;

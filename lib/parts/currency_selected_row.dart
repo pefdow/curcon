@@ -85,7 +85,6 @@ class _CurrencySelectedRowState extends State<CurrencySelectedRow> {
                     child: new TextFormField(
                       controller: _inputAmountCtrlr,
                       keyboardType: TextInputType.number,
-                      //initialValue: '${widget.currency.amount}',
                       style: AppTheme.currencySelected,
                       decoration: new InputDecoration(
                         border: new UnderlineInputBorder(

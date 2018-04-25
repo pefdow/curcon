@@ -20,10 +20,6 @@ class _SearchPageState extends State<SearchPage> {
         elevation: 2.5,
         iconTheme: AppTheme.iconThemeData,
         backgroundColor: AppTheme.searchBg,
-        // leading: new IconButton(
-        //   icon: new Icon(Icons.arrow_back),
-        //   onPressed: (){},
-        // ),
         title: new TextField(
           decoration: new InputDecoration(
             hintText: "Search for currency",
@@ -35,12 +31,6 @@ class _SearchPageState extends State<SearchPage> {
             )
           ),
         ),
-        // actions: <Widget>[
-        //   new IconButton(
-        //     icon: new Icon(Icons.mic),
-        //     onPressed: (){},
-        //   )
-        // ],
       ),
       body: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
