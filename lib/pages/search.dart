@@ -76,7 +76,8 @@ class _SearchPageState extends State<SearchPage> {
                   changePercent: 0.0,
                   amount: 0.0,
                   conversion: 0.0,
-                  onWatch: false
+                  onWatch: false,
+                  crypto: item['crypto'],
                 ));                  
               });
             }
@@ -139,45 +140,84 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _displayCurrencyList() {
+    return isSearching ? 
+      _displaySectionList("Results", queriedCurrencies) :
+      _displayCompoundWatchList();
+  }
+
+  Widget _displayCompoundWatchList() {
+    if (currentCurrencies.length == 0) {
+      return new Center(
+        child: new Text("Type above to begin your search")
+      );
+    } else {
+      return new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Expanded(
+            child: _displaySectionList("Crypto Currencies", currentCurrencies.where(isCrypto).toList())
+          ),
+          new Container(
+            height: 1.0,
+            width: double.infinity,
+            color: AppTheme.greyColor5
+          ),
+          new Expanded(
+            child: _displaySectionList("Regular", currentCurrencies.where(isRegular).toList())
+          )
+        ],
+      );
+    }
+  }
+
+  Widget _displaySectionList(String title, List<Currency> dataList) {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         new Padding(
           padding: const EdgeInsets.all(8.0),
-          child: new Text("${isSearching ? 'Results' : 'Currencies'}", style: AppTheme.currencySearchLabel,),
+          child: new Text("$title", style: AppTheme.currencySearchLabel,),
         ),
         new Expanded(
           child: new ListView.builder(
-            itemCount: isSearching ? queriedCurrencies.length : currentCurrencies.length,
+            itemCount: dataList.length,
             itemBuilder: (context, index){
-              Currency rowcurrency = isSearching ? queriedCurrencies[index] : currentCurrencies[index];
-              return new ListTile(
-                leading: new Text(rowcurrency.code, style: AppTheme.currencyListCode,),
-                title: new Text(rowcurrency.currency, style: AppTheme.currencyListTitle,),
-                trailing: new Checkbox(
-                  value: rowcurrency.onWatch,
-                  onChanged: (bool val){
-                    setState(() {
-                      rowcurrency.onWatch = val;
-                      if (val) {
-                        currentCurrencies.add(rowcurrency);
-                        _currencyService.addToWatchlist(rowcurrency);
-                      } else {
-                        currentCurrencies.remove(rowcurrency);
-                        _currencyService.removeFromWatchlist(rowcurrency);
-                      }
-                      didListChange = true;                     
-                    });
-                  },
-                  activeColor: AppTheme.appOrange,
-                )
-              );
+              Currency rowcurrency = dataList[index];
+              return _generateListTile(rowcurrency);
             },
           ),
         )
       ],
     );
   }
+
+  Widget _generateListTile(Currency currency) {
+    return new ListTile(
+      leading: new Text(currency.code, style: AppTheme.currencyListCode,),
+      title: new Text(currency.currency, style: AppTheme.currencyListTitle,),
+      trailing: new Checkbox(
+        value: currency.onWatch,
+        onChanged: (bool val){
+          setState(() {
+            currency.onWatch = val;
+            if (val) {
+              currentCurrencies.add(currency);
+              _currencyService.addToWatchlist(currency);
+            } else {
+              currentCurrencies.remove(currency);
+              _currencyService.removeFromWatchlist(currency);
+            }
+            didListChange = true;                     
+          });
+        },
+        activeColor: AppTheme.appOrange,
+      )
+    );
+  }
+
+  bool isCrypto(Currency currency) => currency.crypto == 1;
+
+  bool isRegular(Currency currency) => currency.crypto == 0;
 
   bool inWatchlist(String code) {
     return currentCurrencies.any((cur){

@@ -1,6 +1,7 @@
 class Currency {
   String currency;
   String code;
+  int crypto;
   double amount;
   double changePercent;
   double conversion;
@@ -9,6 +10,7 @@ class Currency {
   Currency({
     this.currency,
     this.code,
+    this.crypto,
     this.amount,
     this.changePercent,
     this.conversion,
@@ -26,12 +28,14 @@ class Currency {
     amount = 0.0,
     changePercent = 0.0,
     conversion = 0.0,
+    crypto = json["crypto"],
     onWatch = json["watch"] == 1 ? true : false;
 
   Map<String, dynamic> toDbMap() {
     var map = Map<String, dynamic>();
     map['code'] = code;
     map['name'] = currency;
+    map['crypto'] = crypto;
     map['watch'] = onWatch;
     return map;
   }

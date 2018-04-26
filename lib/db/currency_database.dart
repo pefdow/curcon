@@ -34,7 +34,7 @@ class CurrencyDatabase {
 
   void _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE currencies(code STRING PRIMARY KEY, name TEXT, watch BIT)
+      CREATE TABLE currencies(code STRING PRIMARY KEY, name TEXT, crypto BIT, watch BIT)
     ''');
 
     print("Db currencies created.");

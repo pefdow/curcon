@@ -11,6 +11,7 @@ class AppTheme {
   static const Color appOrange = const Color(0xFFF1683E);
   static const Color searchBg = const Color(0xFFF2F3F3);
   static const Color greyColor4 = const Color(0xFF6D7575);
+  static const Color greyColor5 = const Color(0xFFD2D4D4);
 
   static const IconThemeData iconThemeData = const IconThemeData(color: AppTheme.greyColor4);
 

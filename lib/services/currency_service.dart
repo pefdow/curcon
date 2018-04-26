@@ -46,7 +46,7 @@ class CurrencyService {
         allAssets.add({
           "code": item['asset_id'],
           "currency": item['name'],
-          'is_crypto': item['type_is_crypto']
+          'crypto': item['type_is_crypto']
         });
       });
     }
