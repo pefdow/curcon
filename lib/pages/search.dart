@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../model/currency.dart';
 import '../services/currency_service.dart';
+import '../services/global_state.dart';
 import '../utils/theme.dart';
 
 class SearchPage extends StatefulWidget {
@@ -18,7 +21,9 @@ class _SearchPageState extends State<SearchPage> {
   List<Currency> queriedCurrencies = [];
   bool loading = false;
   bool isSearching = false;
+  bool didListChange = false;
 
+  GlobalState _globalState = GlobalState.instance;
   final PublishSubject subject = new PublishSubject<String>();
 
   @override
@@ -32,26 +37,39 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     subject.stream.debounce(new Duration(milliseconds: 400 )).listen(_searchCurrencies);
     _currencyService = CurrencyService.instance;
-    currentCurrencies = _currencyService.getCurrentCurrencies();
+    _getWatchedCurrencies();
   }
 
-  void _searchCurrencies(dynamic query){
+  void _getWatchedCurrencies() async {
+    setState(() {
+      loading = true;      
+    });
+    List<Currency> currencies = await _currencyService.getCurrentCurrencies();
+    setState(() {
+      currentCurrencies = currencies;
+      loading = false;      
+    });
+  }
+
+  Future _searchCurrencies(dynamic query) async {
     _resetCurrencies();
     if(query.isEmpty){
+      _getWatchedCurrencies();
       setState(() {
-        currentCurrencies = _currencyService.getCurrentCurrencies();
         isSearching = false;
-        loading = false;
       });
     } else {
       setState(() {
         loading = true;
         isSearching = true;
-        List assests = _currencyService.getAllAssests();
-        if (assests.length > 0) {
-          assests.forEach((item){
-            if ( item['code'].contains(query) || item['currency'].contains(query) ) {
-              if ( !inWatchlist(item['code']) && !inQuerylist(item['code']) ) {
+      });
+
+      List assests = await _currencyService.getAllAssests();
+      if (assests.length > 0) {
+        assests.forEach((item){
+          if ( item['code'].contains(query) || item['currency'].contains(query) ) {
+            if ( !inWatchlist(item['code']) && !inQuerylist(item['code']) ) {
+              setState(() {
                 queriedCurrencies.add(new Currency(
                   currency: item['currency'],
                   code: item['code'],
@@ -59,13 +77,16 @@ class _SearchPageState extends State<SearchPage> {
                   amount: 0.0,
                   conversion: 0.0,
                   onWatch: false
-                ));
-              }
+                ));                  
+              });
             }
-          });
-        }
-        loading = false;
-      });
+          }
+        });
+        setState(() {
+          loading = false;
+        });
+      }
+
     }
   }
 
@@ -82,29 +103,39 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: AppTheme.searchBg,
-      appBar: new AppBar(
-        elevation: 2.5,
-        iconTheme: AppTheme.iconThemeData,
+    return new WillPopScope(
+      onWillPop: _completeRequest,
+      child: new Scaffold(
         backgroundColor: AppTheme.searchBg,
-        title: new TextField(
-          onChanged: _searchTermUpdated,
-          decoration: new InputDecoration(
-            hintText: "Search for currency",
-            suffixIcon: new Icon(Icons.mic),
-            border: new UnderlineInputBorder(
-              borderSide: new BorderSide(
-                color: AppTheme.searchBg
+        appBar: new AppBar(
+          elevation: 2.5,
+          iconTheme: AppTheme.iconThemeData,
+          backgroundColor: AppTheme.searchBg,
+          title: new TextField(
+            onChanged: _searchTermUpdated,
+            decoration: new InputDecoration(
+              hintText: "Search for currency",
+              suffixIcon: new Icon(Icons.mic),
+              border: new UnderlineInputBorder(
+                borderSide: new BorderSide(
+                  color: AppTheme.searchBg
+                )
               )
-            )
+            ),
           ),
         ),
+        body: loading ? new Center(
+          child: new CircularProgressIndicator(),
+        ) : _displayCurrencyList(),
       ),
-      body: loading ? new Center(
-        child: new CircularProgressIndicator(),
-      ) : _displayCurrencyList(),
     );
+  }
+
+  Future<bool> _completeRequest() {
+    if (didListChange) {
+      _globalState.set("didListChange", didListChange);
+    }
+    return new Future.value(true);
   }
 
   Widget _displayCurrencyList() {
@@ -129,11 +160,13 @@ class _SearchPageState extends State<SearchPage> {
                     setState(() {
                       rowcurrency.onWatch = val;
                       if (val) {
-                        print('Adding to watchlist...');
-                        addToWatchlist(rowcurrency);
+                        currentCurrencies.add(rowcurrency);
+                        _currencyService.addToWatchlist(rowcurrency);
                       } else {
-                        removeFromWatchlist(rowcurrency);
-                      }                       
+                        currentCurrencies.remove(rowcurrency);
+                        _currencyService.removeFromWatchlist(rowcurrency);
+                      }
+                      didListChange = true;                     
                     });
                   },
                   activeColor: AppTheme.appOrange,
@@ -155,27 +188,6 @@ class _SearchPageState extends State<SearchPage> {
   bool inQuerylist(String code) {
     return queriedCurrencies.any((cur){
       return cur.code == code;
-    });
-  }
-
-  void addToWatchlist(Currency currency) {
-    bool alreadyInList = currentCurrencies.any((cur){
-      return cur.code == currency.code;
-    });
-    if (!alreadyInList) {
-      print('To be added ${currency.toString()}');
-      setState(() {
-        currentCurrencies.add(currency);   
-      });
-      print('currentCurrencies: ${currentCurrencies.toString()}');
-    }
-  }
-
-  void removeFromWatchlist(Currency currency) {
-    setState(() {
-      currentCurrencies.removeWhere((cur){
-        return cur.code == currency.code;
-      });     
     });
   }
 

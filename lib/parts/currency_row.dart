@@ -35,10 +35,10 @@ class _CurrencyRowState extends State<CurrencyRow> {
                   widget.currency.code,
                   style: widget.currency.changePercent > 0 ? AppTheme.currencyCodePositive : widget.currency.changePercent < 0 ? AppTheme.currencyCodeNegative : AppTheme.currencyCodeNeutral,
                 ),
-                new Text(
-                  '${widget.currency.changePercent}%',
-                  style: widget.currency.changePercent > 0 ? AppTheme.currencyChangePositive : widget.currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
-                ),
+                // new Text(
+                //   '${widget.currency.changePercent}%',
+                //   style: widget.currency.changePercent > 0 ? AppTheme.currencyChangePositive : widget.currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
+                // ),
               ],
             ),
           ),
@@ -50,10 +50,12 @@ class _CurrencyRowState extends State<CurrencyRow> {
                 new Text(
                   '${widget.currency.amount}',
                   style: AppTheme.currencyAmount,
+                  softWrap: true,
+                  maxLines: 2,
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: new Text(
+                  child: widget.baseCurrency == '' ? new Container() : new Text(
                     '${widget.currency.conversion} ${widget.currency.currency} = 1 ${widget.baseCurrency}',
                     style: AppTheme.currencyConversion,
                   ),

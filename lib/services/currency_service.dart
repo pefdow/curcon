@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
+import '../db/currency_database.dart';
 import '../model/currency.dart';
 
 class CurrencyService {
@@ -16,58 +17,16 @@ class CurrencyService {
   //ToDo:: This should be made better
   List allAssets = [];
 
-  List<Currency> getCurrentCurrencies() {
-    currencies = [
-      new Currency(
-        currency: "Bitcoin",
-        code: "BTC",
-        amount: 0.892838,
-        changePercent: 0.0,
-        conversion: 1.0,
-        onWatch: true
-      ),
-      new Currency(
-        currency: "Etherium",
-        code: "ETH",
-        amount: 0.182918,
-        changePercent: 4.12,
-        conversion: 0.195422,
-        onWatch: true
-      ),
-      new Currency(
-        currency: "Euro",
-        code: "EUR",
-        amount: 2346.12,
-        changePercent: -1.12,
-        conversion: 2592.92,
-        onWatch: true
-      ),
-      new Currency(
-        currency: "US Dollar",
-        code: "USD",
-        amount: 3452.87,
-        changePercent: 0.37,
-        conversion: 3820.77,
-        onWatch: true
-      ),
-      new Currency(
-        currency: "British Pound",
-        code: "GBP",
-        amount: 1945.23,
-        changePercent: -0.72,
-        conversion: 2139.37,
-        onWatch: true
-      ),
-    ];
-
+  Future<List<Currency>> getCurrentCurrencies() async {
+    CurrencyDatabase db = new CurrencyDatabase();
+    currencies = await db.getCurrencies();
     return currencies;
   }
 
-  List getAllAssests() {
+  Future<List> getAllAssests() async {
     if (allAssets.length == 0) {
-      fetchAssets().then((empty){
-        return allAssets;
-      });
+      await fetchAssets();
+      return allAssets;
     } else {
       return allAssets;
     }
@@ -91,6 +50,17 @@ class CurrencyService {
         });
       });
     }
+  }
+
+  void addToWatchlist(Currency currency) {
+    print('To be added ${currency.toString()}');
+    CurrencyDatabase db = new CurrencyDatabase();
+    db.addCurrency(currency);
+  }
+
+  void removeFromWatchlist(Currency currency) {
+    CurrencyDatabase db = new CurrencyDatabase();
+    db.deleteCurrency(currency.code);
   }
 
 }

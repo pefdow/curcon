@@ -10,6 +10,7 @@ import '../services/currency_service.dart';
 import '../services/exchange_service.dart';
 import '../services/global_state.dart';
 import '../utils/theme.dart';
+import 'search.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   DateTime _lastUpdated;
   String time = '';
   bool _loading = false;
+  bool _fetching = false;
 
   ExchangeService _exchange;
   CurrencyService _currencyService;
@@ -50,8 +52,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _currencyService = CurrencyService.instance;
-    _exchange = ExchangeService.instance;
     _getWatchedCurrencies();
+    _exchange = ExchangeService.instance;
     if (currentCurrencies.length > 0) {
       _currentCode = currentCurrencies[0].code;
       _currentAmount = currentCurrencies[0].amount;
@@ -59,19 +61,21 @@ class _HomePageState extends State<HomePage> {
     }
     _stateSub = _globalState.onStateChanged.listen((data){
       //print('global.state.currentAmount => ${data['currentAmount']}');
-      setState(() {
-        _currentAmount = data['currentAmount'];        
-      });
-      _updateConvertedAmount();
+      if (data['currentAmount'] != null) {
+        setState(() {
+          _currentAmount = data['currentAmount'];        
+        });
+        _updateConvertedAmount();
+      }
     });
 
   }
 
   @override
   void dispose() {
-    super.dispose();
     _stateSub.cancel();
-  }
+    super.dispose();
+  }  
   
   void _updateCurrentIndex(Currency currency) {
     setState(() {
@@ -81,10 +85,18 @@ class _HomePageState extends State<HomePage> {
     _getCurrentExchange();
   }
 
-  void _getWatchedCurrencies() {
+  void _getWatchedCurrencies([bool refreshExchange = false]) async {
     setState(() {
-      currentCurrencies = _currencyService.getCurrentCurrencies();
+      _fetching = true;      
     });
+    List<Currency> currencies = await _currencyService.getCurrentCurrencies();
+    setState(() {
+      currentCurrencies = currencies;
+      _fetching = false;      
+    });
+    if (refreshExchange && currentCurrencies.length > 0) {
+      _getCurrentExchange();
+    }
   }
 
   String _currentCodes() {
@@ -101,6 +113,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _loading = true;
     });
+    print('Codes - ' + _currentCodes().toString());
     var result = _exchange.rates(_currentCode, _currentCodes());
     result.then((data){
       //print('Home - ' + data.toString());
@@ -116,14 +129,12 @@ class _HomePageState extends State<HomePage> {
           }
         });
       } else {
-        //Todo: Alert error
         _showErrorToast();
       }
       setState(() {
         _loading = false;
       });
     }).catchError((){
-      //Todo: Alert error
       _showErrorToast();
       setState(() {
         _loading = false;
@@ -153,7 +164,7 @@ class _HomePageState extends State<HomePage> {
     return new Scaffold(
       key: homeScaffoldKey,
       backgroundColor: AppTheme.appBackground,
-      body: new Column(
+      body: _fetching ? new Center(child: new CircularProgressIndicator()) : new Column(
         children: <Widget>[
           new Expanded(
             child: _generateCurrencyList(),
@@ -162,8 +173,18 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: (){
-          Navigator.pushNamed(context, '/search');
+        onPressed: () async {
+          //bool result = await Navigator.pushNamed(context, '/search');
+          _globalState.set("didListChange", false);
+          final result = await Navigator.push(context,
+            new MaterialPageRoute(builder: (context) => new SearchPage()),
+          );
+          if (result == result) {
+            bool didListChange = _globalState.get("didListChange");
+            if (didListChange != null && didListChange) {
+              _getWatchedCurrencies(true);
+            }
+          }
         },
         tooltip: 'Add currency',
         child: new Icon(Icons.add),
