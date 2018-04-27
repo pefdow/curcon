@@ -37,7 +37,7 @@ class CurrencyService {
     var client = new Client();
     var response = await client.get("https://rest.coinapi.io/v1/assets")
                             .whenComplete(client.close)
-                            .catchError((){
+                            .catchError((err){
                               return null;
                             });
     if (response.statusCode == 200) {
@@ -53,7 +53,6 @@ class CurrencyService {
   }
 
   void addToWatchlist(Currency currency) {
-    print('To be added ${currency.toString()}');
     CurrencyDatabase db = new CurrencyDatabase();
     db.addCurrency(currency);
   }

@@ -54,11 +54,6 @@ class _HomePageState extends State<HomePage> {
     _currencyService = CurrencyService.instance;
     _getWatchedCurrencies();
     _exchange = ExchangeService.instance;
-    if (currentCurrencies.length > 0) {
-      _currentCode = currentCurrencies[0].code;
-      _currentAmount = currentCurrencies[0].amount;
-      _getCurrentExchange();
-    }
     _stateSub = _globalState.onStateChanged.listen((data){
       //print('global.state.currentAmount => ${data['currentAmount']}');
       if (data['currentAmount'] != null) {
@@ -94,8 +89,21 @@ class _HomePageState extends State<HomePage> {
       currentCurrencies = currencies;
       _fetching = false;      
     });
+    if (currentCurrencies.length > 0) {
+      if  (_currentCode == '') {
+        _currentCode = currentCurrencies[0].code;
+        _currentAmount = 1.0; //currentCurrencies[0].amount;
+        setState(() {
+          currentCurrencies[0].amount = 1.0;     
+        });
+      }
+      _getCurrentExchange();
+      _getPriceInfo();
+    }
+    //_getPriceInfo();
     if (refreshExchange && currentCurrencies.length > 0) {
       _getCurrentExchange();
+      _getPriceInfo();
     }
   }
 
@@ -113,7 +121,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _loading = true;
     });
-    print('Codes - ' + _currentCodes().toString());
+    //print('Codes - ' + _currentCodes().toString());
     var result = _exchange.rates(_currentCode, _currentCodes());
     result.then((data){
       //print('Home - ' + data.toString());
@@ -134,11 +142,36 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _loading = false;
       });
-    }).catchError((){
+    }).catchError((err){
       _showErrorToast();
       setState(() {
         _loading = false;
       });
+    });
+  }
+
+  void _getPriceInfo() async {
+    setState(() {
+      _loading = true;
+    });
+
+    List prices = await _exchange.getAllCoinInfo();
+    if (prices != null && prices.length > 0) {
+      currentCurrencies.forEach((item){
+        var price = prices.firstWhere((info){
+          return info["code"] == item.code;
+        }, orElse: () => null);
+        if (price != null) {
+          setState(() {
+            item.changePercent = double.parse(price["chg1h"]) ?? double.parse(price["chg24h"]);
+            _lastUpdated = new DateTime.now();
+            time = timeAgo(_lastUpdated);
+          });
+        }
+      });
+    }
+    setState(() {
+      _loading = false;
     });
   }
 

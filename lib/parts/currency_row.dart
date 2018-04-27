@@ -35,10 +35,10 @@ class _CurrencyRowState extends State<CurrencyRow> {
                   widget.currency.code,
                   style: widget.currency.changePercent > 0 ? AppTheme.currencyCodePositive : widget.currency.changePercent < 0 ? AppTheme.currencyCodeNegative : AppTheme.currencyCodeNeutral,
                 ),
-                // new Text(
-                //   '${widget.currency.changePercent}%',
-                //   style: widget.currency.changePercent > 0 ? AppTheme.currencyChangePositive : widget.currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
-                // ),
+                widget.currency.changePercent != 0.0 ? new Text(
+                  '${widget.currency.changePercent}%',
+                  style: widget.currency.changePercent > 0 ? AppTheme.currencyChangePositive : widget.currency.changePercent < 0 ? AppTheme.currencyChangeNegative : AppTheme.currencyChangeNeutral,
+                ) : new Container(),
               ],
             ),
           ),
